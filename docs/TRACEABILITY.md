@@ -73,3 +73,18 @@ Also covered: star slider semantics and keyboard (`src/components/ui/star-rating
 | LOG-15   | `progress.integration.test.ts`, `src/lib/domain/progress.test.ts`                           | Covered (specials listed, not counted)                                         |
 
 Also covered: offering "mark all episodes" when completing via the log form, "Novos episódios" + `resumeWatching`, rule 6 (logs and watches are independent), numbering gaps, undated episodes, concurrent double clicks.
+
+## Phase 6 — Lists
+
+| Scenario | Test file                                                                                        | Status                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| LST-01   | `src/features/lists/server/lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                  | Covered (slug, positions 1..3, creation through the UI)                 |
+| LST-02   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (-2, -3, per-user, concurrent creates)                          |
+| LST-03   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (CONFLICT message; button disabled in the picker)               |
+| LST-04   | `lists.integration.test.ts`, `src/features/lists/schemas/list.test.ts`, `e2e/lists-flow.spec.ts` | Covered (server order, pure `moveItem`, real keyboard reorder + reload) |
+| LST-05   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (null for others/logged-out; real HTTP 404)                     |
+| LST-06   | `lists.integration.test.ts`                                                                      | Covered (501st refused with the exact message)                          |
+| LST-07   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (FORBIDDEN on every write; editor is a 404 for others)          |
+| LST-08   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (list + items gone; logs and series cache untouched)            |
+
+Also covered: concurrent adds (distinct contiguous positions), stale reorder refused, positions repacked after removal, note limit (280), "Adicionar à lista" menu, share image (`opengraph-image` returns PNG).

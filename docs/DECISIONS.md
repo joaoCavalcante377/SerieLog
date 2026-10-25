@@ -38,3 +38,9 @@
 - Season rating: one per user and season; "clear" deletes the row. The season header shows my rating read-only; editing happens in a dialog.
 - Episode toggles use local optimistic state (not `useOptimistic`) so a successful save never flickers back while `router.refresh()` loads; failures roll back only that episode.
 - "Mark all episodes" is an opt-in checkbox in the log form (shown for COMPLETED), not forced.
+- Phase 6: dependency `@dnd-kit/core|sortable|utilities` for accessible drag-and-drop (built-in keyboard sensor and screen-reader announcements, localized to pt-BR); the handle is a real button.
+- List editing locks the list row (`SELECT … FOR UPDATE`) so concurrent adds/removes/reorders never produce duplicate or gapped positions; reordering swaps positions inside one transaction thanks to the DEFERRABLE `(listId, position)` constraint, and is refused (CONFLICT) if the item set no longer matches (stale UI).
+- The slug is generated once from the title and kept on edit so shared links keep working.
+- Adding from the editor's search syncs the series from TMDB first (it may not be cached yet); the series-page menu uses the already cached series.
+- "Popular lists" has no like signal: ordered by number of series, then newest. Private lists never appear in browse, user pages, metadata or the OG image, and respond 404 to anyone but the owner.
+- Series cards in list covers use plain `<img>` (four tiny, lazy images per card) instead of `next/image`.

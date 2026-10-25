@@ -25,6 +25,8 @@ import {
 } from "@/features/series/queries/series";
 import { getOrSyncSeries } from "@/features/series/server/sync";
 import { auth } from "@/auth";
+import { AddToListMenu } from "@/features/lists/components/add-to-list-menu";
+import { getListsForSeries } from "@/features/lists/queries/lists";
 import { SeriesActions } from "@/features/logs/components/series-actions";
 import { getUserSeriesState } from "@/features/logs/queries/diary";
 import { todayInSaoPaulo } from "@/lib/domain/dates";
@@ -83,14 +85,15 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
   }
 
   const userId = (await auth())?.user?.id;
-  const [userState, progress, watchedEpisodeIds, seasonRatings] = userId
+  const [userState, progress, watchedEpisodeIds, seasonRatings, myLists] = userId
     ? await Promise.all([
         getUserSeriesState(userId, series.id),
         getProgress(userId, series.id),
         getWatchedEpisodeIds(userId, series.id),
         getSeasonRatings(userId, series.id),
+        getListsForSeries(userId, series.id),
       ])
-    : [null, null, [], {}];
+    : [null, null, [], {}, []];
   // Episodes aired after the user completed it: offer (never force) going back to WATCHING.
   const hasNewEpisodes =
     userState?.status === "COMPLETED" &&
@@ -179,6 +182,7 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
                 state={userState}
                 pendingAction={typeof acao === "string" ? acao : undefined}
               />
+              {userId ? <AddToListMenu seriesId={series.id} lists={myLists} /> : null}
               {progress ? (
                 <ProgressPanel
                   seriesId={series.id}
