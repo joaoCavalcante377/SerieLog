@@ -1,0 +1,26 @@
+# Decisions
+
+- Project lives in `serielog/` (working name; change `SITE_NAME` in `src/config/site.ts`).
+- Next.js 16 scaffold: `cacheComponents`/`partialPrefetching` flags from the template were removed — they force Suspense around all dynamic access and are not needed for the MVP.
+- Prisma 6 (not 7) pinned: stable `prisma-client-js` generator and `url` in the datasource.
+- Password hashing: argon2 (`argon2` package).
+- `User.username` is nullable so Google sign-ups can choose it later (AUTH-06); a CHECK enforces lowercase.
+- Partial unique index (one WATCHING log per user+series), rating CHECKs (0.5 steps), Top-4 position CHECK and a DEFERRABLE `(listId, position)` constraint are hand-written in the init migration because Prisma cannot express them.
+- `Series` → user-data relations use `onDelete: Restrict`: user actions never delete cached series rows; deleting a user cascades their own rows.
+- Dates without time (`airDate`, `startedAt`, `finishedAt`) use `@db.Date` to avoid timezone drift.
+- Rate limiting is DB-backed (`RateLimit` table, fixed window) — works across serverless instances; not atomic under heavy concurrency.
+- CSP keeps `'unsafe-inline'` for scripts/styles (Next without nonces); nonce-based CSP is a Phase 8 follow-up.
+- Header search bar is deferred to Phase 3 (needs TMDB); no non-functional controls shipped.
+- shadcn/ui components are added on demand (from Phase 2) rather than bulk-installed.
+- Auth simplified by request (Phase 2): email+password only, stateless JWT session (httpOnly cookie, 30 days) so users stay logged in. No Google OAuth (AUTH-06 deferred), no password recovery/email verification, no rate limiting yet (AUTH-07 → Phase 8). `Account`/`Session`/`VerificationToken` tables stay in the schema so OAuth can be added later without a migration rewrite.
+- Route protection is done in server components via `requireUserId()` (redirects to `/entrar?callbackUrl=…`), not in `proxy.ts`, because argon2/Prisma do not run at the edge.
+- Auth.js `authorize` re-uses `verifyCredentials`; mutation logic lives in `features/*/server/*` (user-id based, no session) so it is testable against Postgres; Server Actions only authenticate and delegate.
+- Integration tests run against `serielog_test` (never the dev DB); `globalSetup` applies migrations, tests run serially.
+- `/diario` is a protected placeholder until Phase 4.
+- Phase 3: no `loading.tsx` on `/serie/[idslug]`. A loading boundary makes Next commit HTTP 200 before the page resolves, which turns unknown series into "200 + 404 page" and breaks the canonical 308 redirect. Real status codes win; only the first-ever visit of a series (TMDB sync) is slow. Home shelves still stream behind skeletons.
+- "Popular reviews" has no popularity signal (likes are out of scope), so the series page shows the most recent reviews.
+- Cast is fetched from TMDB per page view (Next fetch cache, 24h) and not stored; if TMDB is down the section is omitted.
+- Episodes removed from TMDB are never deleted locally (user watch records reference them).
+- Search results are not rate limited yet (Phase 8). Search/discover responses are cached by Next's fetch cache (5 min – 24 h).
+- Genre filter on `/series` is a plain GET form (works without JS, URL is the state); pagination uses Previous/Next links.
+- Series data and the TMDB logo (`public/tmdb-logo.svg`) are in the footer; the TMDB token only lives in `.env`.
