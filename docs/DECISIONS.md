@@ -44,3 +44,8 @@
 - Adding from the editor's search syncs the series from TMDB first (it may not be cached yet); the series-page menu uses the already cached series.
 - "Popular lists" has no like signal: ordered by number of series, then newest. Private lists never appear in browse, user pages, metadata or the OG image, and respond 404 to anyone but the owner.
 - Series cards in list covers use plain `<img>` (four tiny, lazy images per card) instead of `next/image`.
+- Phase 7: CSP `img-src` now allows any `https:` source because avatars are user-supplied URLs; the avatar is a plain `<img referrerpolicy="no-referrer">`. Only `https` avatar URLs are accepted by validation.
+- "Séries assistidas" = distinct series with a COMPLETED log; "Este ano" = COMPLETED logs finished in the current São Paulo year (rewatches count). "Listas" counts public lists for visitors and all lists for the owner.
+- Favorites keep contiguous positions 1..4; reordering rewrites the rows (the 1..4 CHECK rules out temporary offsets) under a per-user row lock, and is refused when the set is stale.
+- The rating histogram on a profile reuses the series-page component with different copy; top genres count distinct completed series.
+- The header shows a "Perfil" link (one small `username` lookup per request).

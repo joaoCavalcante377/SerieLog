@@ -8,7 +8,8 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://image.tmdb.org https://lh3.googleusercontent.com",
+  // https: because avatars are user-supplied https URLs (any host).
+  "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src 'self'${isDev ? " ws:" : ""}`,
   "frame-ancestors 'none'",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
 import { logoutAction } from "@/features/auth/actions/auth-actions";
 import { SITE_NAME } from "@/config/site";
 import { messages } from "@/lib/messages/pt-BR";
@@ -15,7 +16,11 @@ const linkClass = "text-muted hover:text-foreground";
 
 export async function Header() {
   const session = await auth();
-  const signedIn = Boolean(session?.user?.id);
+  const userId = session?.user?.id;
+  const signedIn = Boolean(userId);
+  const username = userId
+    ? (await db.user.findUnique({ where: { id: userId }, select: { username: true } }))?.username
+    : null;
 
   return (
     <header className="border-border bg-background/90 sticky top-0 z-40 border-b backdrop-blur">
@@ -37,6 +42,11 @@ export async function Header() {
           {signedIn ? (
             <Link href="/watchlist" className={linkClass}>
               {messages.nav.watchlist}
+            </Link>
+          ) : null}
+          {username ? (
+            <Link href={`/${username}`} className={linkClass}>
+              {messages.nav.profile}
             </Link>
           ) : null}
         </nav>

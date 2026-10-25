@@ -3,24 +3,37 @@ import { formatRating } from "@/lib/format";
 import { messages } from "@/lib/messages/pt-BR";
 import type { RatingSummary } from "@/lib/domain/rating";
 
-export function RatingSummaryPanel({ summary }: { summary: RatingSummary }) {
+interface Props {
+  summary: RatingSummary;
+  /** Defaults to the community rating copy; the profile page passes its own. */
+  title?: string;
+  emptyText?: string;
+  headingId?: string;
+}
+
+export function RatingSummaryPanel({
+  summary,
+  title = messages.series.communityRating,
+  emptyText = messages.series.noRatings,
+  headingId = "community-rating",
+}: Props) {
   const s = messages.series;
   if (summary.total === 0) {
     return (
-      <section aria-labelledby="community-rating" className="space-y-1">
-        <h2 id="community-rating" className="text-lg font-semibold">
-          {s.communityRating}
+      <section aria-labelledby={headingId} className="space-y-1">
+        <h2 id={headingId} className="text-lg font-semibold">
+          {title}
         </h2>
-        <p className="text-muted">{s.noRatings}</p>
+        <p className="text-muted">{emptyText}</p>
       </section>
     );
   }
 
   const max = Math.max(...summary.histogram.map((b) => b.count), 1);
   return (
-    <section aria-labelledby="community-rating" className="space-y-3">
-      <h2 id="community-rating" className="text-lg font-semibold">
-        {s.communityRating}
+    <section aria-labelledby={headingId} className="space-y-3">
+      <h2 id={headingId} className="text-lg font-semibold">
+        {title}
       </h2>
       <div className="flex items-end gap-6">
         <p className="flex items-center gap-2 text-4xl font-bold">

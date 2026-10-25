@@ -88,3 +88,17 @@ Also covered: offering "mark all episodes" when completing via the log form, "No
 | LST-08   | `lists.integration.test.ts`, `e2e/lists-flow.spec.ts`                                            | Covered (list + items gone; logs and series cache untouched)            |
 
 Also covered: concurrent adds (distinct contiguous positions), stale reorder refused, positions repacked after removal, note limit (280), "Adicionar à lista" menu, share image (`opengraph-image` returns PNG).
+
+## Phase 7 — Profile completion
+
+| Scenario | Test file                                                                             | Status                                                                                   |
+| -------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| PRO-01   | `e2e/profile-flow.spec.ts`                                                            | Covered (renders for logged-out visitors, owner-only controls hidden)                    |
+| PRO-02   | `e2e/profile-flow.spec.ts`                                                            | Covered (real HTTP 404 + 404 page)                                                       |
+| PRO-03   | `src/features/profile/server/profile.integration.test.ts`, `e2e/profile-flow.spec.ts` | Covered (4 in order, 5th blocked with "Máximo de 4 favoritas", concurrent adds, reorder) |
+| PRO-04   | `src/features/profile/server/account.integration.test.ts`, `e2e/profile-flow.spec.ts` | Covered (Phase 2 + visible on the profile)                                               |
+| PRO-05   | `src/features/profile/server/account.integration.test.ts`                             | Covered (Phase 2)                                                                        |
+| PRO-06   | `src/features/profile/server/account.integration.test.ts`                             | Covered (Phase 2)                                                                        |
+| PRO-07   | `src/features/profile/server/profile.integration.test.ts`, `e2e/profile-flow.spec.ts` | Covered (4 distinct series / 2 this year; rewatch rule; São Paulo year boundary)         |
+
+Also covered: rating distribution from the user's own logs, top genres by distinct completed series (ties by name), list counter visibility (public vs owner).
