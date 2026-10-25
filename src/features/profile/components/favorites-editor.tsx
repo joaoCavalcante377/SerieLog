@@ -94,7 +94,7 @@ export function FavoritesEditor({ favorites: serverFavorites }: { favorites: Fav
                   type="button"
                   aria-label={m.removeFavorite(item.name)}
                   onClick={() => remove(item)}
-                  className="text-muted inline-flex h-11 w-11 items-center justify-center hover:text-red-500"
+                  className="text-muted hover:text-danger inline-flex h-11 w-11 items-center justify-center"
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
                 </button>

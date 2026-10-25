@@ -31,7 +31,7 @@ export default async function BrowsePage({ searchParams }: PageProps<"/series">)
       <h1 className="text-2xl font-bold">{b.title}</h1>
       <BrowseFilters params={params} genres={genres} />
       {!results ? (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           {b.loadError}
         </p>
       ) : results.results.length === 0 ? (

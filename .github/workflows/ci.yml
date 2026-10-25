@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  DATABASE_URL: postgresql://serielog:serielog@localhost:5432/serielog_test?schema=public
+  TEST_DATABASE_URL: postgresql://serielog:serielog@localhost:5432/serielog_test?schema=public
+  AUTH_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
+  AUTH_URL: http://localhost:3000
+  NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -22,12 +29,7 @@ jobs:
           --health-timeout 3s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://serielog:serielog@localhost:5432/serielog_test?schema=public
-      TEST_DATABASE_URL: postgresql://serielog:serielog@localhost:5432/serielog_test?schema=public
-      AUTH_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
-      AUTH_URL: http://localhost:3000
       TMDB_API_READ_TOKEN: ci
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -42,3 +44,42 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+  # Browser tests hit the real TMDB API, so they need the TMDB_API_READ_TOKEN repository secret and
+  # only run on pushes (secrets are not exposed to pull requests from forks).
+  e2e:
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: serielog
+          POSTGRES_PASSWORD: serielog
+          POSTGRES_DB: serielog_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U serielog"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      TMDB_API_READ_TOKEN: ${{ secrets.TMDB_API_READ_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm db:deploy
+      - run: pnpm build
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/

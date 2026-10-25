@@ -69,7 +69,7 @@ export function ProfileForm({ defaults }: { defaults: UpdateProfileInput }) {
           {...register("bio")}
         />
         {errors.bio ? (
-          <p id="bio-error" role="alert" className="text-sm text-red-500">
+          <p id="bio-error" role="alert" className="text-danger text-sm">
             {errors.bio.message}
           </p>
         ) : null}

@@ -184,7 +184,7 @@ export function DiaryList({
                       type="button"
                       aria-label={`${messages.common.delete}: ${e.seriesName}`}
                       onClick={() => setDeleting(e)}
-                      className="text-muted inline-flex h-11 w-11 items-center justify-center hover:text-red-500"
+                      className="text-muted hover:text-danger inline-flex h-11 w-11 items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" aria-hidden />
                     </button>

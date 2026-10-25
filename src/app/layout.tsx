@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { ThemedToaster } from "@/components/layout/themed-toaster";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SITE_NAME } from "@/config/site";
@@ -24,6 +24,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Posters/backdrops come from the TMDB CDN: open the connection before the first image is requested. */}
+        <link rel="preconnect" href="https://image.tmdb.org" />
+      </head>
       <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <a
@@ -37,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </main>
           <Footer />
-          <Toaster theme="system" richColors />
+          <ThemedToaster />
         </ThemeProvider>
       </body>
     </html>

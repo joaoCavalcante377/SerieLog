@@ -159,7 +159,7 @@ export function ListEditor({ listId, username, isRanked, items: serverItems }: P
                       type="button"
                       aria-label={m.removeItem(item.name)}
                       onClick={() => remove(item)}
-                      className="text-muted inline-flex h-11 w-11 shrink-0 items-center justify-center hover:text-red-500"
+                      className="text-muted hover:text-danger inline-flex h-11 w-11 shrink-0 items-center justify-center"
                     >
                       <Trash2 className="h-4 w-4" aria-hidden />
                     </button>

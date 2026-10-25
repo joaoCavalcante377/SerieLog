@@ -29,7 +29,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
         aria-describedby={describedBy || undefined}
         className={cn(
           "bg-surface border-border h-11 w-full rounded-md border px-3 text-base",
-          error && "border-red-500",
+          error && "border-danger",
           className,
         )}
         {...rest}
@@ -40,7 +40,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
         </p>
       ) : null}
       {error ? (
-        <p id={`${inputId}-error`} role="alert" className="text-sm text-red-500">
+        <p id={`${inputId}-error`} role="alert" className="text-danger text-sm">
           {error}
         </p>
       ) : null}

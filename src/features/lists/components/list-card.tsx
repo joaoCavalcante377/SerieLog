@@ -32,7 +32,10 @@ export function ListCard({ list, showOwner = true }: { list: ListCardData; showO
         <p className="flex items-center gap-1.5 font-medium">
           <span className="truncate">{list.title}</span>
           {list.isPublic ? null : (
-            <Lock className="text-muted h-3.5 w-3.5 shrink-0" aria-label="Lista privada" />
+            <Lock
+              className="text-muted h-3.5 w-3.5 shrink-0"
+              aria-label={messages.common.privateList}
+            />
           )}
         </p>
         <p className="text-muted text-xs">

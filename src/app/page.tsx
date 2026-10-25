@@ -85,6 +85,7 @@ export default async function HomePage() {
 
       <Shelf
         title={h.trending}
+        priorityCount={4}
         load={async () => (await tmdb.trending()).results.slice(0, 6).map(summaryToCard)}
       />
       <Shelf

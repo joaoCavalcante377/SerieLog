@@ -24,7 +24,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/pesquisa"
       {outcome.status === "too_short" ? (
         <p className="text-muted">{messages.search.promptMinChars}</p>
       ) : outcome.status === "error" ? (
-        <p role="alert" className="text-red-500">
+        <p role="alert" className="text-danger">
           {messages.search.error}
         </p>
       ) : outcome.results.length === 0 ? (

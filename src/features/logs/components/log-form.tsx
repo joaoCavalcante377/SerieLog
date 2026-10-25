@@ -106,7 +106,7 @@ export function LogForm({ defaults, today, onSubmit, onDone, onCancel }: LogForm
           )}
         />
         {errors.rating ? (
-          <p role="alert" className="text-sm text-red-500">
+          <p role="alert" className="text-danger text-sm">
             {errors.rating.message}
           </p>
         ) : null}
@@ -125,11 +125,11 @@ export function LogForm({ defaults, today, onSubmit, onDone, onCancel }: LogForm
           className="bg-surface border-border w-full rounded-md border px-3 py-2"
           {...register("reviewText")}
         />
-        <p className={`text-xs ${reviewLength > REVIEW_MAX ? "text-red-500" : "text-muted"}`}>
+        <p className={`text-xs ${reviewLength > REVIEW_MAX ? "text-danger" : "text-muted"}`}>
           {m.reviewCount(reviewLength, REVIEW_MAX)}
         </p>
         {errors.reviewText ? (
-          <p id="log-review-error" role="alert" className="text-sm text-red-500">
+          <p id="log-review-error" role="alert" className="text-danger text-sm">
             {errors.reviewText.message}
           </p>
         ) : null}
@@ -153,7 +153,7 @@ export function LogForm({ defaults, today, onSubmit, onDone, onCancel }: LogForm
       </div>
 
       {errors.root ? (
-        <p role="alert" className="text-sm text-red-500">
+        <p role="alert" className="text-danger text-sm">
           {errors.root.message}
         </p>
       ) : null}

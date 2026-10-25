@@ -36,6 +36,8 @@ export function Poster({
           fill
           sizes={sizes}
           priority={priority}
+          // TMDB serves ready-made sizes (w185…w780), so skip our own image optimizer hop.
+          unoptimized
           className="object-cover"
         />
       ) : (

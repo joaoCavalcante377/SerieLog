@@ -28,7 +28,10 @@ export async function Header() {
         <Link href="/" className="text-lg font-bold tracking-tight">
           {SITE_NAME}
         </Link>
-        <nav aria-label="Principal" className="flex items-center gap-4 text-sm">
+        <nav
+          aria-label={messages.common.mainNavigation}
+          className="flex items-center gap-4 text-sm"
+        >
           {links.map((l) => (
             <Link key={l.href} href={l.href} className={linkClass}>
               {l.label}

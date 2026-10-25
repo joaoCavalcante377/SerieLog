@@ -66,7 +66,7 @@ export function ListForm(props: Props) {
           {...register("description")}
         />
         {errors.description ? (
-          <p id="list-description-error" role="alert" className="text-sm text-red-500">
+          <p id="list-description-error" role="alert" className="text-danger text-sm">
             {errors.description.message}
           </p>
         ) : null}

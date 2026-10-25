@@ -116,7 +116,7 @@ export function SearchBox() {
             <p className="text-muted p-3 text-sm">{messages.search.searching}</p>
           ) : null}
           {state.kind === "error" ? (
-            <p role="alert" className="p-3 text-sm text-red-500">
+            <p role="alert" className="text-danger p-3 text-sm">
               {messages.search.error}
             </p>
           ) : null}
@@ -140,7 +140,14 @@ export function SearchBox() {
               >
                 <span className="bg-surface-2 relative h-14 w-10 shrink-0 overflow-hidden rounded">
                   {thumb ? (
-                    <Image src={thumb} alt="" fill sizes="40px" className="object-cover" />
+                    <Image
+                      src={thumb}
+                      alt=""
+                      fill
+                      sizes="40px"
+                      unoptimized
+                      className="object-cover"
+                    />
                   ) : null}
                 </span>
                 <span className="min-w-0">

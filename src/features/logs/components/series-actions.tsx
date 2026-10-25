@@ -1,6 +1,7 @@
 "use client";
 
 import { Bookmark, BookmarkCheck, PenLine } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useOptimistic, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -15,7 +16,8 @@ import { buildLoginRedirect } from "@/lib/redirects";
 import { messages } from "@/lib/messages/pt-BR";
 import { createLogAction, rateSeriesAction } from "../actions/log-actions";
 import type { LogFormInput } from "../schemas/log";
-import { LogForm } from "./log-form";
+// Loaded only when the dialog opens: keeps react-hook-form + zod out of the initial series-page bundle.
+const LogForm = dynamic(() => import("./log-form").then((m) => m.LogForm));
 
 const m = messages.logs;
 const w = messages.watchlist;
@@ -102,7 +104,7 @@ export function SeriesActions({ seriesId, returnPath, today, state, pendingActio
 
   return (
     <section
-      aria-label="Ações"
+      aria-label={messages.series.actionsLabel}
       className="bg-surface border-border space-y-4 rounded-lg border p-4"
     >
       <div className="flex flex-wrap gap-2">

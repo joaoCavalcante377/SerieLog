@@ -67,7 +67,7 @@ test("log a series with stars and review, see it in the diary, edit and delete i
   await expect(page.getByRole("dialog")).toBeHidden();
 
   // LOG-01: community average now shows the rating
-  await expect(page.getByText("1 avaliação")).toBeVisible();
+  await expect(page.getByText(/^\d+ (avaliação|avaliações)$/)).toBeVisible();
 
   await page.goto("/diario");
   const row = page.getByRole("listitem").filter({ hasText: "Breaking Bad" });

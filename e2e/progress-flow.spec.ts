@@ -47,6 +47,9 @@ test("episode progress: mark episode, continue watching, season, whole series an
 
   // Unmark one episode, then refresh: state persists (server is the source of truth)
   await s1.getByRole("checkbox", { name: /Marcar T1 Ep\. 2:/ }).uncheck();
+  // The checkbox updates optimistically; let the server action finish before reloading, or the
+  // reload would abort it and (correctly) leave the episode watched.
+  await page.waitForLoadState("networkidle");
   await page.reload();
   await s1.locator("summary").click();
   await expect(s1.getByRole("checkbox", { name: /Marcar T1 Ep\. 2:/ })).not.toBeChecked();

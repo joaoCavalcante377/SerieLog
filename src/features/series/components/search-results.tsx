@@ -50,7 +50,7 @@ export function SearchResults({ query, initial, initialPage, totalPages }: Props
         }))}
       />
       {failed ? (
-        <p role="alert" className="text-sm text-red-500">
+        <p role="alert" className="text-danger text-sm">
           {messages.search.error}
         </p>
       ) : null}

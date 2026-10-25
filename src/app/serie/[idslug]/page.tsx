@@ -16,6 +16,7 @@ import {
   getWatchedEpisodeIds,
 } from "@/features/progress/queries/progress";
 import { SeasonsAccordion } from "@/features/series/components/seasons-accordion";
+import { SeasonsList } from "@/features/series/components/seasons-list";
 import {
   getCast,
   getRatingSummary,
@@ -117,12 +118,13 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
       <article className="space-y-10">
         <header className="relative -mx-4 -mt-6 overflow-hidden">
           {backdrop ? (
-            <div className="absolute inset-0">
+            // Decorative: hidden (so never downloaded, being lazy) on phones, where it only hurt LCP.
+            <div className="absolute inset-0 hidden sm:block">
               <Image
                 src={backdrop}
                 alt=""
                 fill
-                priority
+                unoptimized
                 sizes="100vw"
                 className="object-cover opacity-30"
               />
@@ -134,7 +136,7 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
               <Poster
                 path={series.posterPath}
                 name={series.name}
-                size="w500"
+                size="w342"
                 sizes="(min-width: 640px) 224px, 160px"
                 priority
               />
@@ -198,10 +200,11 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
 
         <RatingSummaryPanel summary={ratings} />
         <CastList cast={cast} />
-        <SeasonsAccordion
-          seasons={seasons}
-          user={userState ? { watchedEpisodeIds, seasonRatings } : null}
-        />
+        {userState ? (
+          <SeasonsAccordion seasons={seasons} user={{ watchedEpisodeIds, seasonRatings }} />
+        ) : (
+          <SeasonsList seasons={seasons} />
+        )}
         <ReviewsList reviews={reviews} />
       </article>
     </CompletionPromptProvider>

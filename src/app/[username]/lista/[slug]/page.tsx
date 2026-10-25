@@ -39,7 +39,7 @@ export default async function ListPage({ params }: PageProps<"/[username]/lista/
         <h1 className="flex flex-wrap items-center gap-2 text-3xl font-bold tracking-tight [overflow-wrap:anywhere]">
           {list.title}
           {list.isPublic ? null : (
-            <Lock className="text-muted h-5 w-5" aria-label="Lista privada" />
+            <Lock className="text-muted h-5 w-5" aria-label={messages.common.privateList} />
           )}
         </h1>
         <p className="text-muted text-sm">

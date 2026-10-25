@@ -98,7 +98,7 @@ export function ProgressPanel({
         ) : null}
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-red-500">
+        <p role="alert" className="text-danger text-sm">
           {messages.common.saveFailed}
         </p>
       ) : null}

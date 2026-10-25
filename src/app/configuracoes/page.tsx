@@ -51,7 +51,7 @@ export default async function SettingsPage() {
         </section>
       ) : null}
       <section aria-labelledby="danger-heading" className="space-y-4">
-        <h2 id="danger-heading" className="text-lg font-semibold text-red-500">
+        <h2 id="danger-heading" className="text-danger text-lg font-semibold">
           {s.dangerSection}
         </h2>
         <DeleteAccountForm />

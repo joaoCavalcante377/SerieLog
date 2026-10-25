@@ -27,7 +27,7 @@ const fillOf = (value: number | null, n: number) =>
 function SingleStar({ fill, className }: { fill: number; className: string }) {
   return (
     <span className="relative inline-block" aria-hidden>
-      <Star className={cn(className, "text-border")} />
+      <Star className={cn(className, "text-star-empty")} />
       <span
         className="absolute inset-y-0 left-0 overflow-hidden"
         style={{ width: `${fill * 100}%` }}

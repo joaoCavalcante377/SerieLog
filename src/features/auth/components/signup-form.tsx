@@ -65,7 +65,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl?: string }) {
         {...register("password")}
       />
       {formError ? (
-        <p role="alert" className="text-sm text-red-500">
+        <p role="alert" className="text-danger text-sm">
           {formError}
         </p>
       ) : null}

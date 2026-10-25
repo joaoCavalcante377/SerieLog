@@ -16,6 +16,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 vi.mock("sonner", () => ({ toast: { error: (m: string) => toastError(m), success: vi.fn() } }));
 
 import { SeasonsAccordion } from "./seasons-accordion";
+import { SeasonsList } from "./seasons-list";
 
 const seasons = [
   {
@@ -43,6 +44,12 @@ const seasons = [
 ];
 
 const user = { watchedEpisodeIds: [] as string[], seasonRatings: {} };
+/** Episode rows render lazily, once their season is opened. */
+const openSeason = () => {
+  const details = document.querySelector("details") as HTMLDetailsElement;
+  details.open = true;
+  fireEvent(details, new Event("toggle"));
+};
 const checkbox = (name: RegExp) => screen.getByRole("checkbox", { name }) as HTMLInputElement;
 
 beforeEach(() => {
@@ -58,6 +65,7 @@ describe("<SeasonsAccordion />", () => {
     let fail!: (v: unknown) => void;
     toggleEpisodeAction.mockReturnValue(new Promise((r) => (fail = r)));
     render(<SeasonsAccordion seasons={seasons} user={user} />);
+    openSeason();
 
     const box = checkbox(/Piloto/);
     expect(box.checked).toBe(false);
@@ -71,12 +79,20 @@ describe("<SeasonsAccordion />", () => {
     expect(refresh).not.toHaveBeenCalled();
   });
 
+  it("renders episode rows only after their season is opened (keeps big series cheap to hydrate)", () => {
+    render(<SeasonsAccordion seasons={seasons} user={user} />);
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+    openSeason();
+    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+  });
+
   it("keeps the checkbox checked and refreshes when the server succeeds", async () => {
     toggleEpisodeAction.mockResolvedValue({
       ok: true,
       data: { progress: {}, promptCompletion: false },
     });
     render(<SeasonsAccordion seasons={seasons} user={user} />);
+    openSeason();
     const box = checkbox(/Piloto/);
     fireEvent.click(box);
     await waitFor(() => expect(refresh).toHaveBeenCalled());
@@ -87,6 +103,7 @@ describe("<SeasonsAccordion />", () => {
 
   it("LOG-07 unaired and undated episodes are disabled with a tooltip", () => {
     render(<SeasonsAccordion seasons={seasons} user={user} />);
+    openSeason();
     for (const name of [/Futuro/, /Sem data/]) {
       const box = checkbox(name);
       expect(box.disabled).toBe(true);
@@ -98,14 +115,15 @@ describe("<SeasonsAccordion />", () => {
   it("LOG-06 'mark season' checks only aired episodes and reverts on failure", async () => {
     markSeasonAction.mockResolvedValue({ ok: false, error: { code: "INTERNAL", message: "x" } });
     render(<SeasonsAccordion seasons={seasons} user={user} />);
+    openSeason();
     fireEvent.click(screen.getByRole("button", { name: "Marcar temporada como assistida" }));
     await waitFor(() => expect(markSeasonAction).toHaveBeenCalledWith("s1", true));
     await waitFor(() => expect(toastError).toHaveBeenCalled());
     expect(checkbox(/Piloto/).checked).toBe(false);
   });
 
-  it("is read-only (no checkboxes or buttons) when logged out", () => {
-    render(<SeasonsAccordion seasons={seasons} user={null} />);
+  it("logged-out visitors get a read-only server-rendered list (no checkboxes or buttons)", () => {
+    render(<SeasonsList seasons={seasons} />);
     expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: /Marcar temporada/ })).toBeNull();
     expect(screen.getByText("Piloto")).toBeTruthy();

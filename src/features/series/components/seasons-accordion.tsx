@@ -57,7 +57,7 @@ const withIds = (set: Set<string>, ids: string[], present: boolean) => {
   return next;
 };
 
-/** Native <details> accordion (keyboard accessible, no JS needed to expand). Season 0 = specials. */
+/** Interactive seasons for signed-in users (native <details>, keyboard accessible). Season 0 = specials. */
 export function SeasonsAccordion({ seasons, user }: Props) {
   const router = useRouter();
   const promptCompletion = useCompletionPrompt();
@@ -68,6 +68,9 @@ export function SeasonsAccordion({ seasons, user }: Props) {
   const [ratings, setRatings] = useState(user?.seasonRatings ?? {});
   const [seenRatings, setSeenRatings] = useState(user?.seasonRatings);
   const [rating, setRating] = useState<SeasonRow | null>(null);
+  // Episode rows are only rendered once a season has been opened: big series have 100+ episodes and
+  // rendering/hydrating them all up front blocks the main thread.
+  const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
 
   // The server re-rendered (e.g. after router.refresh): adopt its data.
   if (user && user.watchedEpisodeIds !== seenIds) {
@@ -121,7 +124,13 @@ export function SeasonsAccordion({ seasons, user }: Props) {
           const seasonLabel = season.seasonNumber === 0 ? s.specials : season.name;
 
           return (
-            <details key={season.id} className="bg-surface border-border group rounded-md border">
+            <details
+              key={season.id}
+              className="bg-surface border-border group rounded-md border"
+              onToggle={(e) => {
+                if (e.currentTarget.open) setOpened((cur) => new Set(cur).add(season.id));
+              }}
+            >
               <summary className="flex min-h-11 cursor-pointer flex-wrap items-center justify-between gap-x-3 px-4 py-2 font-medium">
                 <span>{seasonLabel}</span>
                 <span className="text-muted flex items-center gap-3 text-sm font-normal">
@@ -152,42 +161,44 @@ export function SeasonsAccordion({ seasons, user }: Props) {
                 </div>
               ) : null}
 
-              <ol className="border-border divide-border divide-y border-t">
-                {season.episodes.map((ep) => {
-                  const aired = hasAired(ep.airDate, now);
-                  const label = `${season.seasonNumber === 0 ? s.specials : `T${season.seasonNumber}`} ${s.episodeShort} ${ep.episodeNumber}`;
-                  return (
-                    <li key={ep.id} className="flex items-start gap-3 px-4 py-2.5 text-sm">
-                      {user ? (
-                        <span
-                          title={aired ? undefined : p.notAiredHint}
-                          className="-my-2 -ml-3 flex h-11 w-11 shrink-0 items-center justify-center"
-                        >
-                          <input
-                            type="checkbox"
-                            className="h-5 w-5"
-                            checked={watched.has(ep.id)}
-                            disabled={!aired}
-                            aria-label={p.markEpisode(`${label}: ${ep.name}`)}
-                            onChange={(e) => toggleEpisode(ep.id, e.target.checked)}
-                          />
+              {opened.has(season.id) ? (
+                <ol className="border-border divide-border divide-y border-t">
+                  {season.episodes.map((ep) => {
+                    const aired = hasAired(ep.airDate, now);
+                    const label = `${season.seasonNumber === 0 ? s.specials : `T${season.seasonNumber}`} ${s.episodeShort} ${ep.episodeNumber}`;
+                    return (
+                      <li key={ep.id} className="flex items-start gap-3 px-4 py-2.5 text-sm">
+                        {user ? (
+                          <span
+                            title={aired ? undefined : p.notAiredHint}
+                            className="-my-2 -ml-3 flex h-11 w-11 shrink-0 items-center justify-center"
+                          >
+                            <input
+                              type="checkbox"
+                              className="h-5 w-5"
+                              checked={watched.has(ep.id)}
+                              disabled={!aired}
+                              aria-label={p.markEpisode(`${label}: ${ep.name}`)}
+                              onChange={(e) => toggleEpisode(ep.id, e.target.checked)}
+                            />
+                          </span>
+                        ) : null}
+                        <span className="text-muted w-10 shrink-0 tabular-nums">
+                          {s.episodeShort} {ep.episodeNumber}
                         </span>
-                      ) : null}
-                      <span className="text-muted w-10 shrink-0 tabular-nums">
-                        {s.episodeShort} {ep.episodeNumber}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block">{ep.name}</span>
-                        <span className="text-muted text-xs">
-                          {ep.airDate ? formatDate(ep.airDate) : null}
-                          {ep.runtime ? ` · ${ep.runtime} min` : null}
-                          {aired ? null : ` · ${s.notAired}`}
+                        <span className="min-w-0 flex-1">
+                          <span className="block">{ep.name}</span>
+                          <span className="text-muted text-xs">
+                            {ep.airDate ? formatDate(ep.airDate) : null}
+                            {ep.runtime ? ` · ${ep.runtime} min` : null}
+                            {aired ? null : ` · ${s.notAired}`}
+                          </span>
                         </span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : null}
             </details>
           );
         })}
@@ -261,12 +272,12 @@ function SeasonRatingForm({
           onChange={(e) => setReview(e.target.value)}
           className="bg-surface border-border w-full rounded-md border px-3 py-2"
         />
-        <p className={`text-xs ${review.length > 1000 ? "text-red-500" : "text-muted"}`}>
+        <p className={`text-xs ${review.length > 1000 ? "text-danger" : "text-muted"}`}>
           {messages.logs.reviewCount(review.length, 1000)}
         </p>
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-red-500">
+        <p role="alert" className="text-danger text-sm">
           {error}
         </p>
       ) : null}

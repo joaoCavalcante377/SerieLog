@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { verifyCredentials } from "@/features/auth/server/credentials";
+import { attemptLogin } from "@/features/auth/server/login";
+import { clientIp } from "@/lib/rate-limit";
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
@@ -12,7 +13,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: { email: {}, password: {} },
-      authorize: (credentials) => verifyCredentials(credentials),
+      authorize: async (credentials, request) => {
+        const attempt = await attemptLogin(credentials, clientIp(request.headers));
+        return attempt.status === "ok" ? attempt.user : null;
+      },
     }),
   ],
   callbacks: {

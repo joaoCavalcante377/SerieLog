@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { messages } from "@/lib/messages/pt-BR";
 import { Poster } from "./poster";
 
 export interface SeriesCardData {
@@ -10,18 +11,26 @@ export interface SeriesCardData {
   progress?: number;
 }
 
-export function SeriesCard({ href, name, year, posterPath, progress }: SeriesCardData) {
+export function SeriesCard({
+  href,
+  name,
+  year,
+  posterPath,
+  progress,
+  priority,
+}: SeriesCardData & { priority?: boolean }) {
   return (
     <Link href={href} className="group block min-w-0">
       <Poster
         path={posterPath}
         name={name}
+        priority={priority}
         className="group-hover:border-accent transition-colors"
       />
       {progress !== undefined ? (
         <div
           role="progressbar"
-          aria-label={`Progresso de ${name}`}
+          aria-label={messages.progress.cardProgress(name)}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
@@ -38,12 +47,19 @@ export function SeriesCard({ href, name, year, posterPath, progress }: SeriesCar
   );
 }
 
-export function SeriesGrid({ items }: { items: SeriesCardData[] }) {
+/** `priorityCount`: how many leading posters are above the fold and should load eagerly (LCP). */
+export function SeriesGrid({
+  items,
+  priorityCount = 0,
+}: {
+  items: SeriesCardData[];
+  priorityCount?: number;
+}) {
   return (
     <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <li key={item.href} className="min-w-0">
-          <SeriesCard {...item} />
+          <SeriesCard {...item} priority={index < priorityCount} />
         </li>
       ))}
     </ul>

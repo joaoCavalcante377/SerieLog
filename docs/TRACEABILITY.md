@@ -102,3 +102,14 @@ Also covered: concurrent adds (distinct contiguous positions), stale reorder ref
 | PRO-07   | `src/features/profile/server/profile.integration.test.ts`, `e2e/profile-flow.spec.ts` | Covered (4 distinct series / 2 this year; rewatch rule; São Paulo year boundary)         |
 
 Also covered: rating distribution from the user's own logs, top genres by distinct completed series (ties by name), list counter visibility (public vs owner).
+
+## Phase 8 — Hardening
+
+| Scenario | Test file                                                               | Status                                                                                                                                                  |
+| -------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AUTH-07  | `src/lib/rate-limit.integration.test.ts`, `e2e/auth-rate-limit.spec.ts` | Covered (5 failures per IP+email → 10 min block even with the right password; expiry; other IPs/emails unaffected; reset on success; message in the UI) |
+| AUTH-06  | —                                                                       | Out of scope by decision (Google login removed; see DECISIONS.md)                                                                                       |
+
+Also covered: sitemap contents (`src/lib/seo/sitemap.integration.test.ts`), axe WCAG 2.1 A/AA audit of every page and dialog in both themes at desktop and phone size (`e2e/a11y.spec.ts`).
+
+Coverage check: every scenario ID in the spec except AUTH-06 appears in at least one test (verified by script in Phase 8).
