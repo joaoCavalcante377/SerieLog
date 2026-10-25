@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { parseTmdbDate, todayInSaoPaulo } from "@/lib/domain/dates";
 import { messages } from "@/lib/messages/pt-BR";
 import { fieldErrors } from "@/lib/zod";
+import { markSeries } from "@/features/progress/server/progress";
 import { createLogSchema, logSchema, rateSeriesSchema, type LogFormOutput } from "../schemas/log";
 
 /** Log mutations for an already-authenticated user id (authentication happens in the action layer). */
@@ -55,7 +56,11 @@ export async function createLog(
       await tx.watchlistItem.deleteMany({ where: { userId, seriesId } });
       return created;
     });
-    return log ? ok(log) : alreadyWatching();
+    if (!log) return alreadyWatching();
+    if (form.status === "COMPLETED" && form.markAllWatched) {
+      await markSeries(userId, seriesId, true, { ensureLog: false });
+    }
+    return ok(log);
   } catch (e) {
     // The partial unique index catches concurrent double submits.
     if (isUniqueViolation(e)) return alreadyWatching();
@@ -84,6 +89,9 @@ export async function updateLog(
   }
   try {
     await db.seriesLog.update({ where: { id: logId }, data: toColumns(parsed.data) });
+    if (parsed.data.status === "COMPLETED" && parsed.data.markAllWatched) {
+      await markSeries(userId, owned.data.seriesId, true, { ensureLog: false });
+    }
     return ok(undefined);
   } catch (e) {
     if (isUniqueViolation(e)) return alreadyWatching();

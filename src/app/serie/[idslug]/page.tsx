@@ -8,6 +8,13 @@ import { Poster } from "@/components/media/poster";
 import { CastList } from "@/features/series/components/cast-list";
 import { RatingSummaryPanel } from "@/features/series/components/rating-summary";
 import { ReviewsList } from "@/features/series/components/reviews-list";
+import { CompletionPromptProvider } from "@/features/progress/components/completion-prompt";
+import { ProgressPanel } from "@/features/progress/components/progress-panel";
+import {
+  getProgress,
+  getSeasonRatings,
+  getWatchedEpisodeIds,
+} from "@/features/progress/queries/progress";
 import { SeasonsAccordion } from "@/features/series/components/seasons-accordion";
 import {
   getCast,
@@ -76,7 +83,20 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
   }
 
   const userId = (await auth())?.user?.id;
-  const userState = userId ? await getUserSeriesState(userId, series.id) : null;
+  const [userState, progress, watchedEpisodeIds, seasonRatings] = userId
+    ? await Promise.all([
+        getUserSeriesState(userId, series.id),
+        getProgress(userId, series.id),
+        getWatchedEpisodeIds(userId, series.id),
+        getSeasonRatings(userId, series.id),
+      ])
+    : [null, null, [], {}];
+  // Episodes aired after the user completed it: offer (never force) going back to WATCHING.
+  const hasNewEpisodes =
+    userState?.status === "COMPLETED" &&
+    progress !== null &&
+    progress.watchedAired > 0 &&
+    progress.watchedAired < progress.totalAired;
 
   const [genres, seasons, ratings, reviews, cast] = await Promise.all([
     getSeriesGenres(series.id),
@@ -90,80 +110,96 @@ export default async function SeriesPage({ params, searchParams }: PageProps<"/s
   const years = yearRange(series.firstAirDate, series.lastAirDate, series.status);
 
   return (
-    <article className="space-y-10">
-      <header className="relative -mx-4 -mt-6 overflow-hidden">
-        {backdrop ? (
-          <div className="absolute inset-0">
-            <Image
-              src={backdrop}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover opacity-30"
-            />
-            <div className="from-background absolute inset-0 bg-gradient-to-t to-transparent" />
-          </div>
-        ) : null}
-        <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-10 pb-6 sm:flex-row">
-          <div className="w-40 shrink-0 sm:w-56">
-            <Poster
-              path={series.posterPath}
-              name={series.name}
-              size="w500"
-              sizes="(min-width: 640px) 224px, 160px"
-              priority
-            />
-          </div>
-          <div className="min-w-0 space-y-3">
-            <h1 className="text-3xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-4xl">
-              {series.name}
-              {years ? <span className="text-muted ml-3 text-xl font-normal">{years}</span> : null}
-            </h1>
-            {series.originalName !== series.name ? (
-              <p className="text-muted">{series.originalName}</p>
-            ) : null}
-            <p className="text-muted flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <span>{s.statuses[series.status] ?? series.status}</span>
-              <span>{s.seasonsCount(series.numberOfSeasons)}</span>
-              <span>{s.episodesCount(series.numberOfEpisodes)}</span>
-              {series.episodeRunTime ? <span>{s.runtime(series.episodeRunTime)}</span> : null}
-            </p>
-            {genres.length > 0 ? (
-              <ul className="flex flex-wrap gap-2">
-                {genres.map((g) => (
-                  <li key={g.id}>
-                    <Link
-                      href={`/series?genre=${g.id}`}
-                      className="bg-surface-2 border-border inline-flex rounded-full border px-3 py-1 text-xs"
-                    >
-                      {g.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            <p className="max-w-prose leading-relaxed">
-              {series.overview ?? s.noOverview}
-              {series.overview && series.overviewIsFallback ? (
-                <span className="text-muted ml-1 text-sm">{s.inEnglish}</span>
+    <CompletionPromptProvider seriesId={series.id}>
+      <article className="space-y-10">
+        <header className="relative -mx-4 -mt-6 overflow-hidden">
+          {backdrop ? (
+            <div className="absolute inset-0">
+              <Image
+                src={backdrop}
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover opacity-30"
+              />
+              <div className="from-background absolute inset-0 bg-gradient-to-t to-transparent" />
+            </div>
+          ) : null}
+          <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-10 pb-6 sm:flex-row">
+            <div className="w-40 shrink-0 sm:w-56">
+              <Poster
+                path={series.posterPath}
+                name={series.name}
+                size="w500"
+                sizes="(min-width: 640px) 224px, 160px"
+                priority
+              />
+            </div>
+            <div className="min-w-0 space-y-3">
+              <h1 className="text-3xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-4xl">
+                {series.name}
+                {years ? (
+                  <span className="text-muted ml-3 text-xl font-normal">{years}</span>
+                ) : null}
+              </h1>
+              {series.originalName !== series.name ? (
+                <p className="text-muted">{series.originalName}</p>
               ) : null}
-            </p>
-            <SeriesActions
-              seriesId={series.id}
-              returnPath={seriesPath(series.tmdbId, series.name)}
-              today={todayInSaoPaulo()}
-              state={userState}
-              pendingAction={typeof acao === "string" ? acao : undefined}
-            />
+              <p className="text-muted flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <span>{s.statuses[series.status] ?? series.status}</span>
+                <span>{s.seasonsCount(series.numberOfSeasons)}</span>
+                <span>{s.episodesCount(series.numberOfEpisodes)}</span>
+                {series.episodeRunTime ? <span>{s.runtime(series.episodeRunTime)}</span> : null}
+              </p>
+              {genres.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {genres.map((g) => (
+                    <li key={g.id}>
+                      <Link
+                        href={`/series?genre=${g.id}`}
+                        className="bg-surface-2 border-border inline-flex rounded-full border px-3 py-1 text-xs"
+                      >
+                        {g.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <p className="max-w-prose leading-relaxed">
+                {series.overview ?? s.noOverview}
+                {series.overview && series.overviewIsFallback ? (
+                  <span className="text-muted ml-1 text-sm">{s.inEnglish}</span>
+                ) : null}
+              </p>
+              <SeriesActions
+                seriesId={series.id}
+                returnPath={seriesPath(series.tmdbId, series.name)}
+                today={todayInSaoPaulo()}
+                state={userState}
+                pendingAction={typeof acao === "string" ? acao : undefined}
+              />
+              {progress ? (
+                <ProgressPanel
+                  seriesId={series.id}
+                  watchedAired={progress.watchedAired}
+                  totalAired={progress.totalAired}
+                  percent={progress.percent}
+                  hasNewEpisodes={hasNewEpisodes}
+                />
+              ) : null}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <RatingSummaryPanel summary={ratings} />
-      <CastList cast={cast} />
-      <SeasonsAccordion seasons={seasons} />
-      <ReviewsList reviews={reviews} />
-    </article>
+        <RatingSummaryPanel summary={ratings} />
+        <CastList cast={cast} />
+        <SeasonsAccordion
+          seasons={seasons}
+          user={userState ? { watchedEpisodeIds, seasonRatings } : null}
+        />
+        <ReviewsList reviews={reviews} />
+      </article>
+    </CompletionPromptProvider>
   );
 }

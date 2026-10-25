@@ -75,7 +75,9 @@ export function getContinueWatching(userId: string, take = 12) {
     take,
     select: {
       id: true,
-      series: { select: { tmdbId: true, name: true, posterPath: true, firstAirDate: true } },
+      series: {
+        select: { id: true, tmdbId: true, name: true, posterPath: true, firstAirDate: true },
+      },
     },
   });
 }

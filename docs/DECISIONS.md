@@ -31,3 +31,10 @@
 - Diary date = finishedAt, else startedAt, else the day it was logged (São Paulo). Ordering is `(diaryDate, createdAt, id)` via raw SQL so offset pages stay stable; "load more" is a Server Action and the client de-duplicates by id.
 - `/[username]/diario` and `/[username]/watchlist` shipped in Phase 4 (the profile page itself is Phase 7). Only the owner sees edit/delete; every write still re-checks ownership.
 - Dev deps added for component tests: `jsdom`, `@testing-library/*`. E2E uses Playwright against a production build and the `serielog_test` database (`pnpm build && pnpm test:e2e`).
+- Phase 5: rule 1 ("first episode with no active log creates a WATCHING log") applies whenever there is no WATCHING log, so resuming a dropped or completed series creates a new log flagged `isRewatch`. `createMany … skipDuplicates` (ON CONFLICT DO NOTHING) makes concurrent marks safe with the partial unique index.
+- Unmarking never touches logs, and the completion prompt only appears for an active WATCHING log (never auto-completes).
+- Marking a season/series marks only aired episodes (specials included for "whole series", excluded from the percentage). Undated episodes count as not aired.
+- "Novos episódios" = latest log COMPLETED while some aired, regular episodes are unwatched (and at least one is watched). The "Voltar a assistir" button moves that log back to WATCHING; it is never done silently.
+- Season rating: one per user and season; "clear" deletes the row. The season header shows my rating read-only; editing happens in a dialog.
+- Episode toggles use local optimistic state (not `useOptimistic`) so a successful save never flickers back while `router.refresh()` loads; failures roll back only that episode.
+- "Mark all episodes" is an opt-in checkbox in the log form (shown for COMPLETED), not forced.

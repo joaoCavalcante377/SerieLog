@@ -58,3 +58,18 @@ Also covered: TMDB client retries/timeouts (`src/lib/tmdb/client.test.ts`), date
 | DIA-05   | `src/features/logs/queries/diary.integration.test.ts`                                 | Covered (45 logs → 20/20/5, no duplicates)                                  |
 
 Also covered: star slider semantics and keyboard (`src/components/ui/star-rating.test.tsx`), AUTH-05 full flow (`e2e/log-flow.spec.ts`).
+
+## Phase 5 — Episode progress
+
+| Scenario | Test file                                                                                   | Status                                                                         |
+| -------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| LOG-05   | `src/features/progress/server/progress.integration.test.ts`, `e2e/progress-flow.spec.ts`    | Covered (active log dated today, continue-watching row with progress bar)      |
+| LOG-06   | `progress.integration.test.ts`, `seasons-accordion.test.tsx`, `e2e/progress-flow.spec.ts`   | Covered (aired only, shared timestamp, progress updates)                       |
+| LOG-07   | `progress.integration.test.ts`, `src/features/series/components/seasons-accordion.test.tsx` | Covered (server rejects; checkbox disabled with "Ainda não foi ao ar" tooltip) |
+| LOG-08   | `progress.integration.test.ts`, `e2e/progress-flow.spec.ts`                                 | Covered (prompt, "Agora não" keeps WATCHING, "Sim" completes with today)       |
+| LOG-11   | `progress.integration.test.ts`                                                              | Episode half covered (log-creation half in Phase 4)                            |
+| LOG-13   | `src/features/series/components/seasons-accordion.test.tsx`                                 | Covered (optimistic check, rollback + "Não foi possível salvar")               |
+| LOG-14   | `progress.integration.test.ts`, `e2e/progress-flow.spec.ts`                                 | Covered (rate, change, clear, 1000-char review; shown on season header)        |
+| LOG-15   | `progress.integration.test.ts`, `src/lib/domain/progress.test.ts`                           | Covered (specials listed, not counted)                                         |
+
+Also covered: offering "mark all episodes" when completing via the log form, "Novos episódios" + `resumeWatching`, rule 6 (logs and watches are independent), numbering gaps, undated episodes, concurrent double clicks.

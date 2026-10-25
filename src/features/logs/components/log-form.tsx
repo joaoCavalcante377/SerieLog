@@ -144,6 +144,12 @@ export function LogForm({ defaults, today, onSubmit, onDone, onCancel }: LogForm
           <input type="checkbox" className="h-4 w-4" {...register("isRewatch")} />
           {m.rewatch}
         </label>
+        {status === "COMPLETED" ? (
+          <label className="flex min-h-11 items-center gap-2 text-sm">
+            <input type="checkbox" className="h-4 w-4" {...register("markAllWatched")} />
+            {messages.progress.markAllCheckbox}
+          </label>
+        ) : null}
       </div>
 
       {errors.root ? (

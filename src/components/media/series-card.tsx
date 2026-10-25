@@ -6,9 +6,11 @@ export interface SeriesCardData {
   name: string;
   year: number | string | null;
   posterPath: string | null;
+  /** 0–100: shows a progress bar under the poster (continue watching). */
+  progress?: number;
 }
 
-export function SeriesCard({ href, name, year, posterPath }: SeriesCardData) {
+export function SeriesCard({ href, name, year, posterPath, progress }: SeriesCardData) {
   return (
     <Link href={href} className="group block min-w-0">
       <Poster
@@ -16,6 +18,18 @@ export function SeriesCard({ href, name, year, posterPath }: SeriesCardData) {
         name={name}
         className="group-hover:border-accent transition-colors"
       />
+      {progress !== undefined ? (
+        <div
+          role="progressbar"
+          aria-label={`Progresso de ${name}`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          className="bg-surface-2 mt-1.5 h-1.5 overflow-hidden rounded-full"
+        >
+          <div className="bg-accent h-full" style={{ width: `${progress}%` }} />
+        </div>
+      ) : null}
       <p className="mt-2 truncate text-sm font-medium" title={name}>
         {name}
       </p>

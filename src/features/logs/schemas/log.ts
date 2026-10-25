@@ -28,6 +28,11 @@ const logFields = {
   reviewText: z.string().max(REVIEW_MAX, v.reviewTooLong),
   containsSpoilers: z.boolean(),
   isRewatch: z.boolean(),
+  /** Offered (never forced) when completing: also mark every aired episode as watched. */
+  markAllWatched: z
+    .boolean()
+    .optional()
+    .transform((b) => b ?? false),
 };
 
 type Dates = { status: string; startedAt?: string; finishedAt?: string };

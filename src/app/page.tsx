@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { SeriesGrid } from "@/components/media/series-card";
 import { summaryToCard } from "@/features/series/components/summary-to-card";
 import { Shelf } from "@/features/series/components/shelf";
+import { getProgressForSeries } from "@/features/progress/queries/progress";
 import { getContinueWatching } from "@/features/series/queries/series";
 import { seriesPath } from "@/lib/domain/slug";
 import { formatYear } from "@/lib/format";
@@ -35,7 +36,14 @@ async function GenreChips() {
 
 export default async function HomePage() {
   const session = await auth();
-  const watching = session?.user?.id ? await getContinueWatching(session.user.id) : [];
+  const userId = session?.user?.id;
+  const watching = userId ? await getContinueWatching(userId) : [];
+  const progressBySeries = userId
+    ? await getProgressForSeries(
+        userId,
+        watching.map((w) => w.series.id),
+      )
+    : {};
 
   return (
     <div className="space-y-10">
@@ -69,6 +77,7 @@ export default async function HomePage() {
               name: series.name,
               year: formatYear(series.firstAirDate),
               posterPath: series.posterPath,
+              progress: progressBySeries[series.id] ?? 0,
             }))}
           />
         </section>
