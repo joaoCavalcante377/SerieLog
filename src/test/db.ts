@@ -18,3 +18,16 @@ export async function createUser(overrides: { email?: string; username?: string 
   if (!result.ok) throw new Error("test user creation failed");
   return result.data.id;
 }
+
+export async function createSeries(tmdbId = 1, name = `Série ${tmdbId}`, firstAirDate?: string) {
+  return db.series.create({
+    data: {
+      tmdbId,
+      name,
+      originalName: name,
+      status: "Ended",
+      lastSyncedAt: new Date(),
+      firstAirDate: firstAirDate ? new Date(`${firstAirDate}T00:00:00Z`) : null,
+    },
+  });
+}

@@ -14,3 +14,7 @@ export const formatDate = (date: Date) =>
 
 export const formatYear = (date: Date | null | undefined) =>
   date ? String(date.getUTCFullYear()) : null;
+
+/** Screen-reader text for a rating: "4,5 de 5 estrelas". */
+export const ratingText = (value: number | null) =>
+  value ? `${formatRating(value)} de 5 estrelas` : "Sem avaliação";

@@ -24,3 +24,10 @@
 - Search results are not rate limited yet (Phase 8). Search/discover responses are cached by Next's fetch cache (5 min – 24 h).
 - Genre filter on `/series` is a plain GET form (works without JS, URL is the state); pagination uses Previous/Next links.
 - Series data and the TMDB logo (`public/tmdb-logo.svg`) are in the footer; the TMDB token only lives in `.env`.
+- Phase 4: logged-out actions redirect to `/entrar?callbackUrl=<series>?acao=watchlist` (a page, not a modal, matching Phase 2's login page); the series page completes the queued watchlist add after login.
+- Star clicks follow the spec literally: click N → N, click N again → N−0.5, again → N. Keyboard: arrows ±0.5, Home clears (or 0.5 when not clearable), End = 5. Component is `role="slider"`; stars themselves are mouse/touch only.
+- Rating a series with no log creates a COMPLETED log dated today (rating implies watched). With an existing active/latest log, the rating is written to it instead.
+- Any log creation removes the series from the watchlist; WATCHING logs never keep a finish date.
+- Diary date = finishedAt, else startedAt, else the day it was logged (São Paulo). Ordering is `(diaryDate, createdAt, id)` via raw SQL so offset pages stay stable; "load more" is a Server Action and the client de-duplicates by id.
+- `/[username]/diario` and `/[username]/watchlist` shipped in Phase 4 (the profile page itself is Phase 7). Only the owner sees edit/delete; every write still re-checks ownership.
+- Dev deps added for component tests: `jsdom`, `@testing-library/*`. E2E uses Playwright against a production build and the `serielog_test` database (`pnpm build && pnpm test:e2e`).

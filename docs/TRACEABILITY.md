@@ -33,3 +33,28 @@ Maps each Gherkin scenario ID to its automated test. Filled in per phase.
 | SER-06   | `src/features/series/server/sync.integration.test.ts`                                     | Not-found handling covered; live `/serie/99999999` returns HTTP 404                                                      |
 
 Also covered: TMDB client retries/timeouts (`src/lib/tmdb/client.test.ts`), date/rating/slug domain rules (`src/lib/domain/domain.test.ts`).
+
+## Phase 4 — Watchlist, logging, rating, diary
+
+| Scenario | Test file                                                                             | Status                                                                      |
+| -------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| SER-05   | `e2e/log-flow.spec.ts`                                                                | Covered end to end (logged-out click → sign-up → back on the series, added) |
+| WAT-01   | `src/features/watchlist/server/watchlist.integration.test.ts`                         | Covered; button state in E2E                                                |
+| WAT-02   | `src/features/watchlist/server/watchlist.integration.test.ts`                         | Covered (sequential and concurrent)                                         |
+| WAT-03   | `src/features/watchlist/server/watchlist.integration.test.ts`                         | Covered (sort by added/year/title, genre filter)                            |
+| WAT-04   | `src/features/watchlist/server/watchlist.integration.test.ts`, `e2e/log-flow.spec.ts` | Covered                                                                     |
+| LOG-01   | `src/features/logs/server/logs.integration.test.ts`, `e2e/log-flow.spec.ts`           | Covered (diary + community average)                                         |
+| LOG-02   | `src/components/ui/star-rating.test.tsx`, `logs.integration.test.ts`                  | Covered (4th star twice → 3.5; rating-only save)                            |
+| LOG-03   | `src/features/logs/server/logs.integration.test.ts`                                   | Covered (before start, future)                                              |
+| LOG-04   | `src/features/logs/server/logs.integration.test.ts`                                   | Covered (5000 ok, 5001 rejected)                                            |
+| LOG-09   | `src/features/logs/server/logs.integration.test.ts`                                   | Covered                                                                     |
+| LOG-10   | `src/features/logs/server/logs.integration.test.ts`                                   | Covered (sequential and concurrent; partial unique index)                   |
+| LOG-11   | `src/features/logs/server/logs.integration.test.ts`                                   | Log-creation half covered; "mark an episode" half arrives with Phase 5      |
+| LOG-12   | `src/features/logs/server/logs.integration.test.ts`                                   | Covered (FORBIDDEN on edit and delete)                                      |
+| DIA-01   | `src/features/logs/queries/diary.integration.test.ts`                                 | Ordering covered; month headers are rendered in `diary-list.tsx`            |
+| DIA-02   | `diary.integration.test.ts`, `e2e/log-flow.spec.ts`                                   | Covered (empty state + "Buscar séries" CTA)                                 |
+| DIA-03   | `src/features/logs/queries/diary.integration.test.ts`                                 | Covered; filters live in the URL (GET form)                                 |
+| DIA-04   | `logs.integration.test.ts`, `e2e/log-flow.spec.ts`                                    | Covered (confirm deletes, cancel keeps, average recalculated)               |
+| DIA-05   | `src/features/logs/queries/diary.integration.test.ts`                                 | Covered (45 logs → 20/20/5, no duplicates)                                  |
+
+Also covered: star slider semantics and keyboard (`src/components/ui/star-rating.test.tsx`), AUTH-05 full flow (`e2e/log-flow.spec.ts`).

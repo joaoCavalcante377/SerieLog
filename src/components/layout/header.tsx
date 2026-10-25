@@ -34,6 +34,11 @@ export async function Header() {
               {messages.nav.diary}
             </Link>
           ) : null}
+          {signedIn ? (
+            <Link href="/watchlist" className={linkClass}>
+              {messages.nav.watchlist}
+            </Link>
+          ) : null}
         </nav>
         <div className="order-last w-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-xs sm:flex-1">
           <SearchBox />

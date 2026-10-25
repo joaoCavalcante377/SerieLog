@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { DiaryView } from "@/features/logs/components/diary-view";
+import { parseDiaryFilters } from "@/features/logs/schemas/diary";
 import { requireUserId } from "@/lib/auth-guard";
 import { messages } from "@/lib/messages/pt-BR";
 
 export const metadata: Metadata = { title: messages.diary.title };
 
-// Protected route. The diary content itself is built in Phase 4.
-export default async function DiaryPage() {
-  await requireUserId("/diario");
-  return <h1 className="text-2xl font-bold">{messages.diary.title}</h1>;
+export default async function DiaryPage({ searchParams }: PageProps<"/diario">) {
+  const userId = await requireUserId("/diario");
+  const filters = parseDiaryFilters(await searchParams);
+  return (
+    <DiaryView viewerId={userId} filters={filters} action="/diario" title={messages.diary.title} />
+  );
 }

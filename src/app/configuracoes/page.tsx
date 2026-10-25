@@ -5,6 +5,7 @@ import {
   PasswordForm,
   ProfileForm,
 } from "@/features/profile/components/settings-forms";
+import { WatchlistPrivacyForm } from "@/features/watchlist/components/privacy-form";
 import { getAccount } from "@/features/profile/queries/get-account";
 import { requireUserId } from "@/lib/auth-guard";
 import { messages } from "@/lib/messages/pt-BR";
@@ -34,6 +35,12 @@ export default async function SettingsPage() {
             image: account.image ?? "",
           }}
         />
+      </section>
+      <section aria-labelledby="privacy-heading" className="space-y-4">
+        <h2 id="privacy-heading" className="text-lg font-semibold">
+          {messages.watchlist.title}
+        </h2>
+        <WatchlistPrivacyForm initialPublic={account.watchlistPublic} />
       </section>
       {account.passwordHash ? (
         <section aria-labelledby="password-heading" className="space-y-4">

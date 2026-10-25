@@ -17,6 +17,10 @@ import {
   getSeriesGenres,
 } from "@/features/series/queries/series";
 import { getOrSyncSeries } from "@/features/series/server/sync";
+import { auth } from "@/auth";
+import { SeriesActions } from "@/features/logs/components/series-actions";
+import { getUserSeriesState } from "@/features/logs/queries/diary";
+import { todayInSaoPaulo } from "@/lib/domain/dates";
 import { parseSeriesSegment, seriesPath, slugify } from "@/lib/domain/slug";
 import { formatYear } from "@/lib/format";
 import { messages } from "@/lib/messages/pt-BR";
@@ -61,14 +65,18 @@ function yearRange(first: Date | null, last: Date | null, status: string): strin
   return `${start}–`;
 }
 
-export default async function SeriesPage({ params }: PageProps<"/serie/[idslug]">) {
+export default async function SeriesPage({ params, searchParams }: PageProps<"/serie/[idslug]">) {
   const { idslug } = await params;
+  const { acao } = await searchParams;
   const { series, parsed } = await loadSeries(idslug);
 
   // The id is the source of truth: redirect any other slug to the canonical URL.
   if (parsed.slug !== slugify(series.name, "serie")) {
     permanentRedirect(seriesPath(series.tmdbId, series.name));
   }
+
+  const userId = (await auth())?.user?.id;
+  const userState = userId ? await getUserSeriesState(userId, series.id) : null;
 
   const [genres, seasons, ratings, reviews, cast] = await Promise.all([
     getSeriesGenres(series.id),
@@ -141,6 +149,13 @@ export default async function SeriesPage({ params }: PageProps<"/serie/[idslug]"
                 <span className="text-muted ml-1 text-sm">{s.inEnglish}</span>
               ) : null}
             </p>
+            <SeriesActions
+              seriesId={series.id}
+              returnPath={seriesPath(series.tmdbId, series.name)}
+              today={todayInSaoPaulo()}
+              state={userState}
+              pendingAction={typeof acao === "string" ? acao : undefined}
+            />
           </div>
         </div>
       </header>

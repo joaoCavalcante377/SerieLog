@@ -42,3 +42,38 @@ export function summarizeRatingCounts(rows: readonly RatingBucket[]): RatingSumm
     histogram: RATING_STEPS.map((rating) => ({ rating, count: byRating.get(rating) ?? 0 })),
   };
 }
+
+/**
+ * Star click behaviour: clicking star N sets N; clicking it again steps down to N-0.5;
+ * clicking once more toggles back to N. (Half-star precision without tiny tap targets.)
+ */
+export function nextRatingOnStarClick(current: number | null, star: number): number {
+  if (current === star) return star - 0.5;
+  return star;
+}
+
+/** Keyboard handling for the star slider. Returns undefined when the key is not handled. */
+export function applyRatingKey(
+  current: number | null,
+  key: string,
+  clearable: boolean,
+): number | null | undefined {
+  const value = current ?? 0;
+  const floor = clearable ? null : 0.5;
+  switch (key) {
+    case "ArrowRight":
+    case "ArrowUp":
+      return Math.min(5, value + 0.5);
+    case "ArrowLeft":
+    case "ArrowDown": {
+      const next = value - 0.5;
+      return next < 0.5 ? floor : next;
+    }
+    case "Home":
+      return floor;
+    case "End":
+      return 5;
+    default:
+      return undefined;
+  }
+}
